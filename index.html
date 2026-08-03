@@ -63,7 +63,7 @@
             font-size: 11px;
             font-weight: bold;
             color: #d4a373;
-            margin: 8px 0 4px 0;
+            margin: 10px 0 4px 0;
         }
 
         .write-form input, .write-form textarea, .write-form select {
@@ -82,6 +82,49 @@
             gap: 6px;
         }
 
+        /* 운동 추가 영역 전용 스타일 */
+        .add-ex-btn {
+            background-color: #8d99ae;
+            color: white;
+            border: none;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .ex-list-box {
+            background-color: #f4f6f4;
+            border-radius: 8px;
+            padding: 6px 8px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ex-item-tag {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            border: 1px solid #e2e8e2;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #4a5d4e;
+        }
+
+        .remove-ex {
+            color: #e57373;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
         .save-btn {
             background-color: #7f9a82;
             color: white;
@@ -97,7 +140,7 @@
         /* 그리드 카드 영역 */
         .diary-grid {
             display: grid;
-            grid-template-columns: 1fr; /* 가독성을 위해 1열로 넉넉하게 배치 */
+            grid-template-columns: 1fr;
             gap: 14px;
         }
 
@@ -132,7 +175,6 @@
         .card-music { font-size: 11px; color: #6b6b6b; font-weight: bold; margin-bottom: 6px; }
         .card-text { font-size: 12px; color: #333; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
 
-        /* 식단 및 운동 상자 */
         .card-details {
             background-color: #f9fbf9;
             border-radius: 10px;
@@ -143,9 +185,7 @@
             flex-direction: column;
             gap: 4px;
         }
-        .detail-item { display: flex; align-items: center; gap: 4px; }
 
-        /* 수정/삭제 버튼 */
         .card-actions {
             display: flex;
             justify-content: flex-end;
@@ -176,7 +216,7 @@
 
         <!-- 입력/수정 폼 -->
         <div class="write-form" id="writeForm">
-            <input type="hidden" id="editIndex" value="-1"> <!-- 수정 모드 판별용 -->
+            <input type="hidden" id="editIndex" value="-1">
 
             <div class="section-label">1. 감정 및 BGM</div>
             <div class="row-flex">
@@ -201,25 +241,28 @@
             <input type="text" id="lunchInput" placeholder="🥗 점심 식단">
             <input type="text" id="dinnerInput" placeholder="🍲 저녁 식단">
 
-            <div class="section-label">5. 운동 기록 (선택)</div>
-            <div class="row-flex">
-                <input type="text" id="exTypeInput" placeholder="👟 운동 종류 (예: 산책, 헬스)">
-                <input type="text" id="exTimeInput" placeholder="⏱️ 운동 시간 (예: 40분)">
+            <div class="section-label">5. 오늘 했던 운동들 (여러 개 추가 가능)</div>
+            <div class="row-flex" style="margin-bottom: 6px;">
+                <input type="text" id="exTypeInput" placeholder="종류 (예: 산책)" style="margin-bottom:0;">
+                <input type="text" id="exTimeInput" placeholder="시간 (예: 30분)" style="margin-bottom:0;">
+                <button type="button" class="add-ex-btn" onclick="addExercise()">+ 추가</button>
             </div>
+            
+            <!-- 추가된 운동 목록이 실시간으로 표기되는 상자 -->
+            <div class="ex-list-box" id="exListBox" style="display:none;"></div>
 
             <button class="save-btn" onclick="saveDiary()">기록 저장하기</button>
         </div>
 
-        <!-- 일기 그리드 영역 -->
         <div class="diary-grid" id="diaryGrid"></div>
     </div>
 
     <script>
         let photoBase64 = "";
+        let currentExercises = []; // 다중 운동 항목을 담는 배열
 
         window.onload = function() {
             loadDiaries();
-            // 사진 파일 선택 시 이미지 데이터를 변환
             document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
         };
 
@@ -228,13 +271,12 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    // 이미지 압축 처리 (스마트폰 저장용)
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        canvas.width = 400; // 가로 크기 400px로 제한
+                        canvas.width = 400;
                         canvas.height = img.height * (400 / img.width);
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         photoBase64 = canvas.toDataURL('image/jpeg', 0.7);
@@ -242,6 +284,48 @@
                 };
                 reader.readAsDataURL(file);
             }
+        }
+
+        // 운동 개별 추가 기능
+        function addExercise() {
+            const typeInput = document.getElementById('exTypeInput');
+            const timeInput = document.getElementById('exTimeInput');
+            const type = typeInput.value.trim();
+            const time = timeInput.value.trim();
+
+            if (!type) {
+                alert('운동 종류를 입력해 주세요! (예: 산책)');
+                return;
+            }
+
+            currentExercises.push({ type: type, time: time });
+            typeInput.value = '';
+            timeInput.value = '';
+            renderExerciseList();
+        }
+
+        // 추가된 운동 제거 기능
+        function removeExercise(index) {
+            currentExercises.splice(index, 1);
+            renderExerciseList();
+        }
+
+        // 작성 창 내부의 운동 목록 UI 업데이트
+        function renderExerciseList() {
+            const box = document.getElementById('exListBox');
+            if (currentExercises.length === 0) {
+                box.style.display = 'none';
+                box.innerHTML = '';
+                return;
+            }
+
+            box.style.display = 'flex';
+            box.innerHTML = currentExercises.map((ex, idx) => `
+                <div class="ex-item-tag">
+                    <span>👟 <b>${ex.type}</b> ${ex.time ? '(' + ex.time + ')' : ''}</span>
+                    <span class="remove-ex" onclick="removeExercise(${idx})">✕</span>
+                </div>
+            `).join('');
         }
 
         function openForm() {
@@ -260,6 +344,8 @@
             document.getElementById('dinnerInput').value = "";
             document.getElementById('exTypeInput').value = "";
             document.getElementById('exTimeInput').value = "";
+            currentExercises = [];
+            renderExerciseList();
             photoBase64 = "";
         }
 
@@ -277,7 +363,6 @@
             const today = new Date();
             const dateStr = (today.getMonth() + 1) + '월 ' + today.getDate() + '일';
 
-            // 수정일 경우 기존 날짜 유지, 새 글일 경우 오늘 날짜
             const savedDate = (editIndex > -1) ? diaries[editIndex].date : dateStr;
             const savedPhoto = photoBase64 || ((editIndex > -1) ? diaries[editIndex].photo : "");
 
@@ -290,14 +375,13 @@
                 breakfast: document.getElementById('breakfastInput').value,
                 lunch: document.getElementById('lunchInput').value,
                 dinner: document.getElementById('dinnerInput').value,
-                exType: document.getElementById('exTypeInput').value,
-                exTime: document.getElementById('exTimeInput').value
+                exercises: currentExercises // 여러 운동 데이터 배열 저장
             };
 
             if (editIndex > -1) {
-                diaries[editIndex] = diaryData; // 수정
+                diaries[editIndex] = diaryData;
             } else {
-                diaries.unshift(diaryData); // 새 글 추가
+                diaries.unshift(diaryData);
             }
 
             localStorage.setItem('myDiaries', JSON.stringify(diaries));
@@ -317,8 +401,17 @@
             document.getElementById('breakfastInput').value = item.breakfast || "";
             document.getElementById('lunchInput').value = item.lunch || "";
             document.getElementById('dinnerInput').value = item.dinner || "";
-            document.getElementById('exTypeInput').value = item.exType || "";
-            document.getElementById('exTimeInput').value = item.exTime || "";
+            
+            // 기존 단일 운동 데이터가 있다면 배열로 호환 변환
+            if (item.exercises) {
+                currentExercises = [...item.exercises];
+            } else if (item.exType) {
+                currentExercises = [{ type: item.exType, time: item.exTime || "" }];
+            } else {
+                currentExercises = [];
+            }
+            renderExerciseList();
+
             photoBase64 = item.photo || "";
 
             document.getElementById('writeForm').style.display = 'block';
@@ -354,9 +447,11 @@
                 if (item.lunch) mealsHTML += `<div>🥗 점심: ${item.lunch}</div>`;
                 if (item.dinner) mealsHTML += `<div>🍲 저녁: ${item.dinner}</div>`;
 
+                // 운동 목록 HTML 변환
                 let exerciseHTML = '';
-                if (item.exType || item.exTime) {
-                    exerciseHTML = `<div>👟 운동: ${item.exType || ''} ${item.exTime ? '(' + item.exTime + ')' : ''}</div>`;
+                const exList = item.exercises || (item.exType ? [{ type: item.exType, time: item.exTime }] : []);
+                if (exList.length > 0) {
+                    exerciseHTML = exList.map(ex => `<div>👟 운동: ${ex.type} ${ex.time ? '(' + ex.time + ')' : ''}</div>`).join('');
                 }
 
                 card.innerHTML = `
