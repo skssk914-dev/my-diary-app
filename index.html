@@ -17,7 +17,7 @@
 
         .app-container {
             width: 360px;
-            height: 720px;
+            height: 740px;
             background-color: #ffffff;
             border-radius: 35px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
@@ -37,7 +37,6 @@
         .app-title { font-size: 18px; font-weight: bold; color: #4a4a4a; }
         .app-subtitle { font-size: 12px; color: #a0a0a0; margin-top: 4px; }
 
-        /* 일기 쓰기 버튼 */
         .write-btn {
             background-color: #d4a373;
             color: white;
@@ -51,58 +50,118 @@
             width: 100%;
         }
 
-        /* 작성 폼 (숨겨져 있다가 버튼 누르면 나타남) */
         .write-form {
             display: none;
             background-color: #fffdf9;
             border: 1px solid #f3e9dc;
-            padding: 12px;
+            padding: 14px;
             border-radius: 15px;
             margin-bottom: 15px;
         }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #d4a373;
+            margin: 8px 0 4px 0;
+        }
+
         .write-form input, .write-form textarea, .write-form select {
             width: 100%;
-            margin-bottom: 8px;
-            padding: 8px;
+            margin-bottom: 6px;
+            padding: 7px;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             box-sizing: border-box;
             font-family: inherit;
-            font-size: 12px;
+            font-size: 11px;
         }
+
+        .row-flex {
+            display: flex;
+            gap: 6px;
+        }
+
         .save-btn {
             background-color: #7f9a82;
             color: white;
             border: none;
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             width: 100%;
             font-weight: bold;
             cursor: pointer;
+            margin-top: 10px;
         }
 
         /* 그리드 카드 영역 */
         .diary-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr; /* 가독성을 위해 1열로 넉넉하게 배치 */
+            gap: 14px;
         }
 
         .grid-card {
             background-color: #fefefd;
             border: 1px solid #f1ece6;
             border-radius: 18px;
-            padding: 12px;
+            padding: 14px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-            display: flex;
-            flex-direction: column;
+            position: relative;
         }
 
-        .card-date { font-size: 10px; color: #8c8c8c; }
-        .card-mood { font-size: 22px; margin: 4px 0; text-align: center; }
-        .card-music { font-size: 11px; color: #6b6b6b; font-weight: bold; }
-        .card-text { font-size: 11px; color: #444; line-height: 1.4; margin-top: 4px; }
-        .card-health { font-size: 10px; color: #7f9a82; background: #f2f7f3; padding: 4px; border-radius: 6px; margin-top: 6px; }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f7f7f7;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+        .card-date { font-size: 11px; color: #8c8c8c; font-weight: bold; }
+        .card-mood { font-size: 20px; }
+
+        .card-photo {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .card-music { font-size: 11px; color: #6b6b6b; font-weight: bold; margin-bottom: 6px; }
+        .card-text { font-size: 12px; color: #333; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
+
+        /* 식단 및 운동 상자 */
+        .card-details {
+            background-color: #f9fbf9;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 11px;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .detail-item { display: flex; align-items: center; gap: 4px; }
+
+        /* 수정/삭제 버튼 */
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .action-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            color: #777;
+            cursor: pointer;
+        }
+        .delete-btn { color: #e57373; border-color: #ffcdd2; }
     </style>
 </head>
 <body>
@@ -110,86 +169,171 @@
     <div class="app-container">
         <div class="app-header">
             <div class="app-title">🌿 나의 하루 다이어리</div>
-            <div class="app-subtitle">매일의 생각과 추억을 기록해요</div>
+            <div class="app-subtitle">생각, 식단, 운동, 사진 기록하기</div>
         </div>
 
-        <!-- 새 일기 작성 버튼 -->
-        <button class="write-btn" onclick="toggleForm()">✏️ 오늘 일기 쓰기</button>
+        <button class="write-btn" onclick="openForm()">✏️ 오늘 일기 쓰기</button>
 
-        <!-- 입력 폼 영역 -->
+        <!-- 입력/수정 폼 -->
         <div class="write-form" id="writeForm">
-            <select id="moodInput">
-                <option value="☕">☕ 여유로움</option>
-                <option value="🌿">🌿 평온함</option>
-                <option value="😊">😊 기쁨/행복</option>
-                <option value="🌧️">🌧️ 감성적/우울</option>
-                <option value="🔥">🔥 열정/열심히</option>
-            </select>
-            <input type="text" id="musicInput" placeholder="🎵 오늘의 BGM (예: 아이유 - 밤편지)">
-            <textarea id="textInput" rows="3" placeholder="📖 오늘의 생각을 적어보세요..."></textarea>
-            <input type="text" id="healthInput" placeholder="🥗 식단이나 👟 운동 기록 (선택)">
+            <input type="hidden" id="editIndex" value="-1"> <!-- 수정 모드 판별용 -->
+
+            <div class="section-label">1. 감정 및 BGM</div>
+            <div class="row-flex">
+                <select id="moodInput" style="width: 40%;">
+                    <option value="☕">☕ 여유로움</option>
+                    <option value="🌿">🌿 평온함</option>
+                    <option value="😊">😊 기쁨/행복</option>
+                    <option value="🌧️">🌧️ 감성/우울</option>
+                    <option value="🔥">🔥 열정/열심히</option>
+                </select>
+                <input type="text" id="musicInput" placeholder="🎵 BGM (곡명)">
+            </div>
+
+            <div class="section-label">2. 오늘의 생각 / 추억</div>
+            <textarea id="textInput" rows="3" placeholder="일기 내용을 적어보세요..."></textarea>
+
+            <div class="section-label">3. 사진 첨부</div>
+            <input type="file" id="photoInput" accept="image/*">
+
+            <div class="section-label">4. 식단 기록 (선택)</div>
+            <input type="text" id="breakfastInput" placeholder="🥣 아침 식단">
+            <input type="text" id="lunchInput" placeholder="🥗 점심 식단">
+            <input type="text" id="dinnerInput" placeholder="🍲 저녁 식단">
+
+            <div class="section-label">5. 운동 기록 (선택)</div>
+            <div class="row-flex">
+                <input type="text" id="exTypeInput" placeholder="👟 운동 종류 (예: 산책, 헬스)">
+                <input type="text" id="exTimeInput" placeholder="⏱️ 운동 시간 (예: 40분)">
+            </div>
+
             <button class="save-btn" onclick="saveDiary()">기록 저장하기</button>
         </div>
 
-        <!-- 일기 목록이 나오는 그리드 -->
-        <div class="diary-grid" id="diaryGrid">
-            <!-- 작성한 일기가 여기에 하나씩 추가됩니다 -->
-        </div>
+        <!-- 일기 그리드 영역 -->
+        <div class="diary-grid" id="diaryGrid"></div>
     </div>
 
     <script>
-        // 화면이 켜지면 저장된 일기를 불러옴
+        let photoBase64 = "";
+
         window.onload = function() {
             loadDiaries();
+            // 사진 파일 선택 시 이미지 데이터를 변환
+            document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
         };
 
-        // 입력 폼 열기/닫기
-        function toggleForm() {
-            const form = document.getElementById('writeForm');
-            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        function handlePhotoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // 이미지 압축 처리 (스마트폰 저장용)
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = 400; // 가로 크기 400px로 제한
+                        canvas.height = img.height * (400 / img.width);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        photoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
-        // 일기 저장 기능
+        function openForm() {
+            resetForm();
+            document.getElementById('writeForm').style.display = 'block';
+        }
+
+        function resetForm() {
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('moodInput').value = "☕";
+            document.getElementById('musicInput').value = "";
+            document.getElementById('textInput').value = "";
+            document.getElementById('photoInput').value = "";
+            document.getElementById('breakfastInput').value = "";
+            document.getElementById('lunchInput').value = "";
+            document.getElementById('dinnerInput').value = "";
+            document.getElementById('exTypeInput').value = "";
+            document.getElementById('exTimeInput').value = "";
+            photoBase64 = "";
+        }
+
         function saveDiary() {
-            const mood = document.getElementById('moodInput').value;
-            const music = document.getElementById('musicInput').value;
+            const editIndex = parseInt(document.getElementById('editIndex').value);
             const text = document.getElementById('textInput').value;
-            const health = document.getElementById('healthInput').value;
 
             if (!text.trim()) {
                 alert('일기 내용을 입력해 주세요!');
                 return;
             }
 
+            let diaries = JSON.parse(localStorage.getItem('myDiaries')) || [];
+
             const today = new Date();
             const dateStr = (today.getMonth() + 1) + '월 ' + today.getDate() + '일';
 
-            const newDiary = {
-                date: dateStr,
-                mood: mood,
-                music: music,
+            // 수정일 경우 기존 날짜 유지, 새 글일 경우 오늘 날짜
+            const savedDate = (editIndex > -1) ? diaries[editIndex].date : dateStr;
+            const savedPhoto = photoBase64 || ((editIndex > -1) ? diaries[editIndex].photo : "");
+
+            const diaryData = {
+                date: savedDate,
+                mood: document.getElementById('moodInput').value,
+                music: document.getElementById('musicInput').value,
                 text: text,
-                health: health
+                photo: savedPhoto,
+                breakfast: document.getElementById('breakfastInput').value,
+                lunch: document.getElementById('lunchInput').value,
+                dinner: document.getElementById('dinnerInput').value,
+                exType: document.getElementById('exTypeInput').value,
+                exTime: document.getElementById('exTimeInput').value
             };
 
-            // 기존 저장된 데이터 가져오기
-            let diaries = JSON.parse(localStorage.getItem('myDiaries')) || [];
-            diaries.unshift(newDiary); // 새 일기를 맨 앞에 추가
+            if (editIndex > -1) {
+                diaries[editIndex] = diaryData; // 수정
+            } else {
+                diaries.unshift(diaryData); // 새 글 추가
+            }
 
-            // 브라우저에 저장
             localStorage.setItem('myDiaries', JSON.stringify(diaries));
-
-            // 입력창 초기화 및 닫기
-            document.getElementById('musicInput').value = '';
-            document.getElementById('textInput').value = '';
-            document.getElementById('healthInput').value = '';
-            toggleForm();
-
-            // 화면 다시 그리기
+            document.getElementById('writeForm').style.display = 'none';
+            resetForm();
             loadDiaries();
         }
 
-        // 저장된 일기 화면에 출력하기
+        function editDiary(index) {
+            let diaries = JSON.parse(localStorage.getItem('myDiaries')) || [];
+            const item = diaries[index];
+
+            document.getElementById('editIndex').value = index;
+            document.getElementById('moodInput').value = item.mood;
+            document.getElementById('musicInput').value = item.music || "";
+            document.getElementById('textInput').value = item.text || "";
+            document.getElementById('breakfastInput').value = item.breakfast || "";
+            document.getElementById('lunchInput').value = item.lunch || "";
+            document.getElementById('dinnerInput').value = item.dinner || "";
+            document.getElementById('exTypeInput').value = item.exType || "";
+            document.getElementById('exTimeInput').value = item.exTime || "";
+            photoBase64 = item.photo || "";
+
+            document.getElementById('writeForm').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteDiary(index) {
+            if (confirm('이 일기를 정말 삭제하시겠습니까?')) {
+                let diaries = JSON.parse(localStorage.getItem('myDiaries')) || [];
+                diaries.splice(index, 1);
+                localStorage.setItem('myDiaries', JSON.stringify(diaries));
+                loadDiaries();
+            }
+        }
+
         function loadDiaries() {
             const grid = document.getElementById('diaryGrid');
             grid.innerHTML = '';
@@ -197,19 +341,42 @@
             let diaries = JSON.parse(localStorage.getItem('myDiaries')) || [];
 
             if (diaries.length === 0) {
-                grid.innerHTML = '<div style="grid-column: span 2; text-align:center; color:#aaa; font-size:12px; padding:20px;">아직 작성된 일기가 없습니다.<br>위 버튼을 눌러 첫 일기를 작성해 보세요!</div>';
+                grid.innerHTML = '<div style="text-align:center; color:#aaa; font-size:12px; padding:30px;">아직 작성된 일기가 없습니다.<br>버튼을 눌러 나만의 첫 일기를 남겨보세요!</div>';
                 return;
             }
 
-            diaries.forEach(item => {
+            diaries.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = 'grid-card';
+
+                let mealsHTML = '';
+                if (item.breakfast) mealsHTML += `<div>🥣 아침: ${item.breakfast}</div>`;
+                if (item.lunch) mealsHTML += `<div>🥗 점심: ${item.lunch}</div>`;
+                if (item.dinner) mealsHTML += `<div>🍲 저녁: ${item.dinner}</div>`;
+
+                let exerciseHTML = '';
+                if (item.exType || item.exTime) {
+                    exerciseHTML = `<div>👟 운동: ${item.exType || ''} ${item.exTime ? '(' + item.exTime + ')' : ''}</div>`;
+                }
+
                 card.innerHTML = `
-                    <div class="card-date">${item.date}</div>
-                    <div class="card-mood">${item.mood}</div>
+                    <div class="card-top">
+                        <span class="card-date">${item.date}</span>
+                        <span class="card-mood">${item.mood}</span>
+                    </div>
+                    ${item.photo ? `<img src="${item.photo}" class="card-photo">` : ''}
                     ${item.music ? `<div class="card-music">🎵 ${item.music}</div>` : ''}
                     <div class="card-text">${item.text}</div>
-                    ${item.health ? `<div class="card-health">${item.health}</div>` : ''}
+                    ${(mealsHTML || exerciseHTML) ? `
+                        <div class="card-details">
+                            ${mealsHTML}
+                            ${exerciseHTML}
+                        </div>
+                    ` : ''}
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="editDiary(${index})">✏️ 수정</button>
+                        <button class="action-btn delete-btn" onclick="deleteDiary(${index})">🗑️ 삭제</button>
+                    </div>
                 `;
                 grid.appendChild(card);
             });
