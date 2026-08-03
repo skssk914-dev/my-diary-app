@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나만의 감성 그리드 다이어리</title>
     <style>
-        /* 기본 배경 및 스마트폰 화면 설정 */
         body {
             background-color: #f7f8fa;
             display: flex;
@@ -18,7 +17,7 @@
 
         .app-container {
             width: 360px;
-            height: 700px;
+            height: 720px;
             background-color: #ffffff;
             border-radius: 35px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
@@ -29,24 +28,66 @@
             overflow-y: auto;
         }
 
-        /* 헤더 디자인 */
         .app-header {
             text-align: center;
-            padding-bottom: 15px;
+            padding-bottom: 12px;
             border-bottom: 2px dashed #f0f0f0;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .app-title { font-size: 18px; font-weight: bold; color: #4a4a4a; }
         .app-subtitle { font-size: 12px; color: #a0a0a0; margin-top: 4px; }
 
-        /* 그리드(Grid) 레이아웃 핵심 설정 */
-        .diary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 2열 바둑판 */
-            gap: 12px; /* 카드 사이 간격 */
+        /* 일기 쓰기 버튼 */
+        .write-btn {
+            background-color: #d4a373;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            width: 100%;
         }
 
-        /* 그리드 카드 디자인 */
+        /* 작성 폼 (숨겨져 있다가 버튼 누르면 나타남) */
+        .write-form {
+            display: none;
+            background-color: #fffdf9;
+            border: 1px solid #f3e9dc;
+            padding: 12px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        .write-form input, .write-form textarea, .write-form select {
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 12px;
+        }
+        .save-btn {
+            background-color: #7f9a82;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 그리드 카드 영역 */
+        .diary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
         .grid-card {
             background-color: #fefefd;
             border: 1px solid #f1ece6;
@@ -55,33 +96,13 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
-        .card-date { font-size: 11px; color: #8c8c8c; }
-        .card-mood { font-size: 22px; margin: 6px 0; text-align: center; }
-        .card-photo {
-            width: 100%;
-            height: 80px;
-            background-color: #e3ebd3;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 12px;
-            color: #5d7052;
-            margin-bottom: 6px;
-        }
-        .card-music { font-size: 11px; color: #6b6b6b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-date { font-size: 10px; color: #8c8c8c; }
+        .card-mood { font-size: 22px; margin: 4px 0; text-align: center; }
+        .card-music { font-size: 11px; color: #6b6b6b; font-weight: bold; }
         .card-text { font-size: 11px; color: #444; line-height: 1.4; margin-top: 4px; }
         .card-health { font-size: 10px; color: #7f9a82; background: #f2f7f3; padding: 4px; border-radius: 6px; margin-top: 6px; }
-
-        /* 가로로 길게 차지하는 1줄 전용 카드 */
-        .full-width {
-            grid-column: span 2;
-            background-color: #fffdf9;
-            border-color: #f3e9dc;
-        }
     </style>
 </head>
 <body>
@@ -89,51 +110,110 @@
     <div class="app-container">
         <div class="app-header">
             <div class="app-title">🌿 나의 하루 다이어리</div>
-            <div class="app-subtitle">생각, 감정, 음악, 건강 기록하기</div>
+            <div class="app-subtitle">매일의 생각과 추억을 기록해요</div>
         </div>
 
-        <!-- 2열 그리드 시작 -->
-        <div class="diary-grid">
+        <!-- 새 일기 작성 버튼 -->
+        <button class="write-btn" onclick="toggleForm()">✏️ 오늘 일기 쓰기</button>
 
-            <!-- 1번 카드: 감정과 음악 -->
-            <div class="grid-card">
-                <div class="card-date">08월 03일</div>
-                <div class="card-mood">☕</div>
-                <div class="card-music">🎵 아이유 - 밤편지</div>
-                <div class="card-text">소소한 여유가 있었던 오후 시간.</div>
-            </div>
+        <!-- 입력 폼 영역 -->
+        <div class="write-form" id="writeForm">
+            <select id="moodInput">
+                <option value="☕">☕ 여유로움</option>
+                <option value="🌿">🌿 평온함</option>
+                <option value="😊">😊 기쁨/행복</option>
+                <option value="🌧️">🌧️ 감성적/우울</option>
+                <option value="🔥">🔥 열정/열심히</option>
+            </select>
+            <input type="text" id="musicInput" placeholder="🎵 오늘의 BGM (예: 아이유 - 밤편지)">
+            <textarea id="textInput" rows="3" placeholder="📖 오늘의 생각을 적어보세요..."></textarea>
+            <input type="text" id="healthInput" placeholder="🥗 식단이나 👟 운동 기록 (선택)">
+            <button class="save-btn" onclick="saveDiary()">기록 저장하기</button>
+        </div>
 
-            <!-- 2번 카드: 식단 & 운동량 -->
-            <div class="grid-card">
-                <div class="card-date">건강 체크</div>
-                <div class="card-health">🥗 아침: 사과/계란</div>
-                <div class="card-health">🥗 점심: 비빔밥</div>
-                <div class="card-health">👟 산책 45분 (6천 걸음)</div>
-            </div>
-
-            <!-- 3번 카드: 대표 추억 사진 (전체 폭) -->
-            <div class="grid-card full-width">
-                <div class="card-date">오늘의 사진 & 추억</div>
-                <div class="card-photo">📸 오늘 마신 따뜻한 차 한 잔</div>
-                <div class="card-text">내가 좋아하는 공간에서 나만의 생각을 정리해 본 날.</div>
-            </div>
-
-            <!-- 4번 카드: 감정 이모티콘 앨범 -->
-            <div class="grid-card">
-                <div class="card-date">08월 02일</div>
-                <div class="card-mood">🌿</div>
-                <div class="card-text">평온했던 주말 산책.</div>
-            </div>
-
-            <!-- 5번 카드: 운동 기록 -->
-            <div class="grid-card">
-                <div class="card-date">08월 02일</div>
-                <div class="card-mood">🔥</div>
-                <div class="card-health">👟 홈트레이닝 30분</div>
-            </div>
-
+        <!-- 일기 목록이 나오는 그리드 -->
+        <div class="diary-grid" id="diaryGrid">
+            <!-- 작성한 일기가 여기에 하나씩 추가됩니다 -->
         </div>
     </div>
 
+    <script>
+        // 화면이 켜지면 저장된 일기를 불러옴
+        window.onload = function() {
+            loadDiaries();
+        };
+
+        // 입력 폼 열기/닫기
+        function toggleForm() {
+            const form = document.getElementById('writeForm');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // 일기 저장 기능
+        function saveDiary() {
+            const mood = document.getElementById('moodInput').value;
+            const music = document.getElementById('musicInput').value;
+            const text = document.getElementById('textInput').value;
+            const health = document.getElementById('healthInput').value;
+
+            if (!text.trim()) {
+                alert('일기 내용을 입력해 주세요!');
+                return;
+            }
+
+            const today = new Date();
+            const dateStr = (today.getMonth() + 1) + '월 ' + today.getDate() + '일';
+
+            const newDiary = {
+                date: dateStr,
+                mood: mood,
+                music: music,
+                text: text,
+                health: health
+            };
+
+            // 기존 저장된 데이터 가져오기
+            let diaries = JSON.parse(localStorage.getItem('myDiaries')) || [];
+            diaries.unshift(newDiary); // 새 일기를 맨 앞에 추가
+
+            // 브라우저에 저장
+            localStorage.setItem('myDiaries', JSON.stringify(diaries));
+
+            // 입력창 초기화 및 닫기
+            document.getElementById('musicInput').value = '';
+            document.getElementById('textInput').value = '';
+            document.getElementById('healthInput').value = '';
+            toggleForm();
+
+            // 화면 다시 그리기
+            loadDiaries();
+        }
+
+        // 저장된 일기 화면에 출력하기
+        function loadDiaries() {
+            const grid = document.getElementById('diaryGrid');
+            grid.innerHTML = '';
+
+            let diaries = JSON.parse(localStorage.getItem('myDiaries')) || [];
+
+            if (diaries.length === 0) {
+                grid.innerHTML = '<div style="grid-column: span 2; text-align:center; color:#aaa; font-size:12px; padding:20px;">아직 작성된 일기가 없습니다.<br>위 버튼을 눌러 첫 일기를 작성해 보세요!</div>';
+                return;
+            }
+
+            diaries.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'grid-card';
+                card.innerHTML = `
+                    <div class="card-date">${item.date}</div>
+                    <div class="card-mood">${item.mood}</div>
+                    ${item.music ? `<div class="card-music">🎵 ${item.music}</div>` : ''}
+                    <div class="card-text">${item.text}</div>
+                    ${item.health ? `<div class="card-health">${item.health}</div>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+    </script>
 </body>
 </html>
