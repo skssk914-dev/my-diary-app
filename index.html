@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 감성 그리드 다이어리</title>
+    <style>
+        /* 기본 배경 및 스마트폰 화면 설정 */
+        body {
+            background-color: #f7f8fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Malgun Gothic', sans-serif;
+        }
+
+        .app-container {
+            width: 360px;
+            height: 700px;
+            background-color: #ffffff;
+            border-radius: 35px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* 헤더 디자인 */
+        .app-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #f0f0f0;
+            margin-bottom: 20px;
+        }
+        .app-title { font-size: 18px; font-weight: bold; color: #4a4a4a; }
+        .app-subtitle { font-size: 12px; color: #a0a0a0; margin-top: 4px; }
+
+        /* 그리드(Grid) 레이아웃 핵심 설정 */
+        .diary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2열 바둑판 */
+            gap: 12px; /* 카드 사이 간격 */
+        }
+
+        /* 그리드 카드 디자인 */
+        .grid-card {
+            background-color: #fefefd;
+            border: 1px solid #f1ece6;
+            border-radius: 18px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-date { font-size: 11px; color: #8c8c8c; }
+        .card-mood { font-size: 22px; margin: 6px 0; text-align: center; }
+        .card-photo {
+            width: 100%;
+            height: 80px;
+            background-color: #e3ebd3;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #5d7052;
+            margin-bottom: 6px;
+        }
+        .card-music { font-size: 11px; color: #6b6b6b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-text { font-size: 11px; color: #444; line-height: 1.4; margin-top: 4px; }
+        .card-health { font-size: 10px; color: #7f9a82; background: #f2f7f3; padding: 4px; border-radius: 6px; margin-top: 6px; }
+
+        /* 가로로 길게 차지하는 1줄 전용 카드 */
+        .full-width {
+            grid-column: span 2;
+            background-color: #fffdf9;
+            border-color: #f3e9dc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-title">🌿 나의 하루 다이어리</div>
+            <div class="app-subtitle">생각, 감정, 음악, 건강 기록하기</div>
+        </div>
+
+        <!-- 2열 그리드 시작 -->
+        <div class="diary-grid">
+
+            <!-- 1번 카드: 감정과 음악 -->
+            <div class="grid-card">
+                <div class="card-date">08월 03일</div>
+                <div class="card-mood">☕</div>
+                <div class="card-music">🎵 아이유 - 밤편지</div>
+                <div class="card-text">소소한 여유가 있었던 오후 시간.</div>
+            </div>
+
+            <!-- 2번 카드: 식단 & 운동량 -->
+            <div class="grid-card">
+                <div class="card-date">건강 체크</div>
+                <div class="card-health">🥗 아침: 사과/계란</div>
+                <div class="card-health">🥗 점심: 비빔밥</div>
+                <div class="card-health">👟 산책 45분 (6천 걸음)</div>
+            </div>
+
+            <!-- 3번 카드: 대표 추억 사진 (전체 폭) -->
+            <div class="grid-card full-width">
+                <div class="card-date">오늘의 사진 & 추억</div>
+                <div class="card-photo">📸 오늘 마신 따뜻한 차 한 잔</div>
+                <div class="card-text">내가 좋아하는 공간에서 나만의 생각을 정리해 본 날.</div>
+            </div>
+
+            <!-- 4번 카드: 감정 이모티콘 앨범 -->
+            <div class="grid-card">
+                <div class="card-date">08월 02일</div>
+                <div class="card-mood">🌿</div>
+                <div class="card-text">평온했던 주말 산책.</div>
+            </div>
+
+            <!-- 5번 카드: 운동 기록 -->
+            <div class="grid-card">
+                <div class="card-date">08월 02일</div>
+                <div class="card-mood">🔥</div>
+                <div class="card-health">👟 홈트레이닝 30분</div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
